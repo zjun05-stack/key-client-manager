@@ -1,9 +1,31 @@
 """入口：系统托盘、定时提醒、启动管理."""
 
+import os
 import sys
 import threading
+import traceback
+from datetime import datetime
 
 from PIL import Image, ImageDraw
+
+# Detect app directory for log file
+if getattr(sys, "frozen", False):
+    APP_DIR = os.path.dirname(sys.executable)
+else:
+    APP_DIR = os.path.dirname(os.path.abspath(__file__))
+
+LOG_FILE = os.path.join(APP_DIR, "error.log")
+
+
+def _log_error(exc):
+    """Write exception to log file."""
+    try:
+        with open(LOG_FILE, "a", encoding="utf-8") as f:
+            f.write(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}]\n")
+            f.write(traceback.format_exc())
+            f.write("\n")
+    except Exception:
+        pass
 
 
 def _create_tray_icon():
@@ -150,7 +172,13 @@ class App:
 
 
 def main():
-    App().run()
+    try:
+        App().run()
+    except Exception as e:
+        _log_error(e)
+        # Show error in a simple popup so user knows something went wrong
+        import tkinter.messagebox as mb
+        mb.showerror("程序错误", f"程序遇到错误，已记录到 error.log\n\n{traceback.format_exc()}")
 
 
 if __name__ == "__main__":

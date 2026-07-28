@@ -1,11 +1,18 @@
 """Excel 读写层：客户名单 + 联系记录管理."""
 
 import os
+import sys
 from datetime import date, timedelta
 from openpyxl import load_workbook
 from openpyxl.styles import Font, Alignment, PatternFill, Border, Side
 
-EXCEL_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "重点客户名单.xlsx")
+# Detect app directory (works both as .py and as PyInstaller .exe)
+if getattr(sys, "frozen", False):
+    APP_DIR = os.path.dirname(sys.executable)
+else:
+    APP_DIR = os.path.dirname(os.path.abspath(__file__))
+
+EXCEL_FILE = os.path.join(APP_DIR, "重点客户名单.xlsx")
 
 BODY_FONT = Font(name="微软雅黑", size=11)
 BODY_ALIGN = Alignment(horizontal="center", vertical="center")

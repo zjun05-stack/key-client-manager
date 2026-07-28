@@ -1,8 +1,15 @@
 """提醒逻辑：判断提醒时机 + 获取未联系客户."""
 
 import os
+import sys
 from datetime import date, datetime, time as dtime
 from excel_handler import get_this_week_contacted, load_customers, get_week_info
+
+# Detect app directory (works both as .py and as PyInstaller .exe)
+if getattr(sys, "frozen", False):
+    APP_DIR = os.path.dirname(sys.executable)
+else:
+    APP_DIR = os.path.dirname(os.path.abspath(__file__))
 
 REMINDER_WINDOW_START = dtime(9, 0)
 REMINDER_WINDOW_END = dtime(9, 15)
@@ -10,7 +17,7 @@ REMINDER_WINDOW_END = dtime(9, 15)
 
 def _today_reminder_flag_file():
     """Return a marker filename for today's reminder state."""
-    tmpdir = os.path.join(os.path.dirname(os.path.abspath(__file__)), ".reminder_state")
+    tmpdir = os.path.join(APP_DIR, ".reminder_state")
     os.makedirs(tmpdir, exist_ok=True)
     return os.path.join(tmpdir, f"reminded_{date.today().isoformat()}.txt")
 
