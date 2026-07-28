@@ -1,0 +1,45 @@
+name: Build Windows EXE
+
+on:
+  push:
+    branches: [main, master]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: pip install openpyxl pillow pystray pyinstaller
+
+      - name: Build EXE
+        run: pyinstaller --onefile --windowed --name "客户管理" main.py
+
+      - name: Upload EXE artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: 客户管理-exe
+          path: |
+            dist/客户管理.exe
+            setup.bat
+            重点客户名单.xlsx
+
+      - name: Create release package
+        run: |
+          mkdir release
+          copy dist\客户管理.exe release\
+          copy setup.bat release\
+          copy 重点客户名单.xlsx release\
+
+      - name: Upload release zip
+        uses: actions/upload-artifact@v4
+        with:
+          name: 业务员重点客户管理-完整包
+          path: release/
