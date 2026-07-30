@@ -12,7 +12,7 @@ if getattr(sys, "frozen", False):
 else:
     APP_DIR = os.path.dirname(os.path.abspath(__file__))
 
-EXCEL_FILE = os.path.join(APP_DIR, "重点客户名单.xlsx")
+EXCEL_FILE = os.path.join(APP_DIR, "clients.xlsx")
 
 BODY_FONT = Font(name="Microsoft YaHei", size=11)
 BODY_ALIGN = Alignment(horizontal="center", vertical="center")
