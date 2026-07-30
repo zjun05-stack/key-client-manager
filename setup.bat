@@ -6,88 +6,53 @@ echo ===========================================
 echo.
 
 set "APP_DIR=%~dp0"
+set "APP_DIR=%APP_DIR:~0,-1%"
 
-:: ── Detect mode: EXE or Python ──
-if exist "%APP_DIR%客户管理.exe" (
-    set "MODE=exe"
-    echo [检测] 独立 EXE 模式（无需 Python）
-) else (
-    set "MODE=python"
-    echo [检测] Python 脚本模式
+:: Detect main exe regardless of filename encoding
+set "MAIN_EXE="
+for %%f in ("%APP_DIR%\*.exe") do (
+    echo %%~nxf | findstr /v /i "卸载 uninstall" >nul
+    if not errorlevel 1 set "MAIN_EXE=%%~nxf"
 )
-
-:: ── Python mode: check & install dependencies ──
-if "%MODE%"=="python" (
-    python --version >nul 2>&1
-    if %errorlevel% neq 0 (
-        echo [错误] 未检测到 Python
-        echo.
-        echo 请按以下步骤安装 Python：
-        echo   1. 打开浏览器，访问 https://www.python.org/downloads/
-        echo   2. 点击黄色 "Download Python" 按钮
-        echo   3. 运行下载的安装程序
-        echo   4. 务必勾选底部的 "Add Python to PATH" ✓
-        echo   5. 点击 Install Now 等待完成
-        echo   6. 重新运行本 setup.bat
-        echo.
-        pause
-        exit /b 1
-    )
-    echo [OK] Python 已安装
-
-    echo [*] 正在安装依赖库...
-    pip install -r "%APP_DIR%requirements.txt" --user --quiet
-    if %errorlevel% neq 0 (
-        echo [错误] 依赖安装失败，请检查网络连接
-        pause
-        exit /b 1
-    )
-    echo [OK] 依赖库安装完成
+if "%MAIN_EXE%"=="" (
+    echo [错误] 未找到程序 EXE 文件。
+    echo 请将本 bat 放在与客户管理.exe 同一个文件夹内。
+    pause
+    exit /b 1
 )
+echo [OK] 已找到 %MAIN_EXE%
 
-:: ── Create VBS launcher (no black console window) ──
-set "VBS_FILE=%APP_DIR%launcher.vbs"
-if "%MODE%"=="exe" (
-    echo Set WshShell = CreateObject("WScript.Shell") > "%VBS_FILE%"
-    echo WshShell.Run """%APP_DIR%客户管理.exe"" --silent", 0 >> "%VBS_FILE%"
-) else (
-    echo Set WshShell = CreateObject("WScript.Shell") > "%VBS_FILE%"
-    echo WshShell.Run "pythonw ""%APP_DIR%main.py"" --silent", 0 >> "%VBS_FILE%"
-)
+:: Create VBS launcher (silent start, no console)
+set "VBS_FILE=%APP_DIR%\launcher.vbs"
+echo Set WshShell = CreateObject("WScript.Shell") > "%VBS_FILE%"
+echo WshShell.Run """%APP_DIR%\%MAIN_EXE%"" --silent", 0 >> "%VBS_FILE%"
 echo [OK] 启动器已创建
 
-:: ── Copy VBS to Windows Startup folder ──
+:: Copy VBS to Windows Startup folder
 set "STARTUP_DIR=%APPDATA%\Microsoft\Windows\Start Menu\Programs\Startup"
 set "SHORTCUT=%STARTUP_DIR%\业务员重点客户管理.vbs"
-
 copy "%VBS_FILE%" "%SHORTCUT%" /Y >nul 2>&1
 if %errorlevel% equ 0 (
     echo [OK] 开机自启已设置
 ) else (
-    echo [警告] 开机自启设置失败，请手动复制：
-    echo        %VBS_FILE%
-    echo    到 %STARTUP_DIR%
+    echo [警告] 开机自启失败，请手动复制以下文件到启动文件夹：
+    echo   %VBS_FILE%
+    echo   → %STARTUP_DIR%
 )
 
-:: ── Create desktop shortcut ──
+:: Create desktop shortcut pointing to EXE
 set "DESKTOP_DIR=%USERPROFILE%\Desktop"
 set "DESKTOP_SHORTCUT=%DESKTOP_DIR%\业务员重点客户管理.lnk"
-
-if "%MODE%"=="exe" (
-    powershell -Command "$WshShell = New-Object -ComObject WScript.Shell; $Shortcut = $WshShell.CreateShortcut('%DESKTOP_SHORTCUT%'); $Shortcut.TargetPath = '%APP_DIR%客户管理.exe'; $Shortcut.WorkingDirectory = '%APP_DIR%'; $Shortcut.Save()" >nul 2>&1
-) else (
-    powershell -Command "$WshShell = New-Object -ComObject WScript.Shell; $Shortcut = $WshShell.CreateShortcut('%DESKTOP_SHORTCUT%'); $Shortcut.TargetPath = 'pythonw.exe'; $Shortcut.Arguments = '""%APP_DIR%main.py""'; $Shortcut.WorkingDirectory = '%APP_DIR%'; $Shortcut.Save()" >nul 2>&1
-)
+powershell -Command "$WshShell = New-Object -ComObject WScript.Shell; $s = $WshShell.CreateShortcut('%DESKTOP_SHORTCUT%'); $s.TargetPath = '%APP_DIR%\%MAIN_EXE%'; $s.WorkingDirectory = '%APP_DIR%'; $s.Save()" >nul 2>&1
 if %errorlevel% equ 0 (
     echo [OK] 桌面快捷方式已创建
 ) else (
-    echo [提示] 可手动在桌面创建快捷方式
+    echo [提示] 桌面快捷方式创建失败，可手动右键 exe 发送到桌面
 )
 
 echo.
 echo ===========================================
-echo   安装完成！
-echo   程序将随电脑开机自动启动
-echo   双击桌面快捷方式或 EXE 即可手动打开
+echo   安装完成！程序将开机自动启动。
+echo   也可双击 %MAIN_EXE% 手动打开。
 echo ===========================================
 pause
