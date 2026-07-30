@@ -23,7 +23,7 @@ jobs:
         run: pyinstaller --onefile --windowed --name "客户管理" main.py
 
       - name: Build uninstaller EXE
-        run: pyinstaller --onefile --windowed --name "卸载程序" uninstall.py
+        run: pyinstaller --onefile --windowed --name "uninstall" uninstall.py
 
       - name: Upload release package
         uses: actions/upload-artifact@v4
@@ -31,6 +31,6 @@ jobs:
           name: 业务员重点客户管理-完整包
           path: |
             dist/客户管理.exe
-            dist/卸载程序.exe
+            dist/uninstall.exe
             setup.bat
             重点客户名单.xlsx
