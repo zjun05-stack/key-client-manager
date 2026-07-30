@@ -19,44 +19,6 @@ jobs:
       - name: Install dependencies
         run: pip install openpyxl pillow pystray pyinstaller
 
-      - name: Apply PyInstaller path fix
-        shell: pwsh
-        run: |
-          # Fix excel_handler.py: use sys.executable for PyInstaller bundles
-          $c = Get-Content excel_handler.py -Raw
-          # Replace the hardcoded __file__ path with proper detection
-          $old1 = 'EXCEL_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "重点客户名单.xlsx")'
-          $new1 = @'
-          if getattr(sys, "frozen", False):
-              APP_DIR = os.path.dirname(sys.executable)
-          else:
-              APP_DIR = os.path.dirname(os.path.abspath(__file__))
-          EXCEL_FILE = os.path.join(APP_DIR, "重点客户名单.xlsx")
-          '@
-          $c = $c.Replace($old1, $new1)
-          $c = $c.Replace('import os', 'import os' + "`nimport sys")
-          Set-Content excel_handler.py -Value $c -NoNewline
-
-          # Fix reminder.py: same issue
-          $c2 = Get-Content reminder.py -Raw
-          $old2 = 'tmpdir = os.path.join(os.path.dirname(os.path.abspath(__file__)), ".reminder_state")'
-          $new2 = 'tmpdir = os.path.join(APP_DIR, ".reminder_state")'
-          $c2 = $c2.Replace($old2, $new2)
-          $c2 = $c2.Replace('import os', 'import os' + "`nimport sys")
-          # Add APP_DIR detection if not present
-          if ($c2 -notmatch 'APP_DIR') {
-            $detect = @'
-          if getattr(sys, "frozen", False):
-              APP_DIR = os.path.dirname(sys.executable)
-          else:
-              APP_DIR = os.path.dirname(os.path.abspath(__file__))
-          '@
-            $c2 = $c2.Replace('REMINDER_WINDOW_START', $detect + "`n`nREMINDER_WINDOW_START")
-          }
-          Set-Content reminder.py -Value $c2 -NoNewline
-
-          Write-Host "Path fix applied successfully"
-
       - name: Build EXE
         run: pyinstaller --onefile --windowed --name "客户管理" main.py
 
