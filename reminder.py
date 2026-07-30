@@ -36,22 +36,20 @@ def mark_reminded_today():
 
 
 def should_remind():
-    """Return True if now is Mon/Fri 9:00-9:15 and not reminded yet today."""
+    """Return True if now is weekday 9:00-9:15 and not reminded yet today."""
     if has_reminded_today():
         return False
     now = datetime.now()
-    if now.weekday() not in (0, 4):  # 0=Mon, 4=Fri
+    if now.weekday() >= 5:  # 5=Sat, 6=Sun, skip weekends
         return False
     current_time = now.time()
     return REMINDER_WINDOW_START <= current_time <= REMINDER_WINDOW_END
 
 
 def get_reminder_info():
-    """Return (is_monday, uncontacted_names, week_num, friday_date) for reminder display.
-    Returns None if no reminder is needed (should call should_remind first).
-    """
+    """Return reminder info for display."""
     today = date.today()
-    is_monday = today.weekday() == 0
+    weekday = today.weekday()  # 0=Mon ... 4=Fri, 5=Sat, 6=Sun
     customers = load_customers()
     contacted = get_this_week_contacted()
     week_num, monday, friday = get_week_info()
@@ -59,7 +57,9 @@ def get_reminder_info():
     uncontacted = [c["name"] for c in customers if c["name"] not in contacted]
 
     return {
-        "is_monday": is_monday,
+        "weekday": weekday,
+        "is_monday": weekday == 0,
+        "is_friday": weekday == 4,
         "uncontacted": uncontacted,
         "total": len(customers),
         "contacted_count": len(contacted),

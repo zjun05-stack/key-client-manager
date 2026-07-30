@@ -56,14 +56,23 @@ def _show_reminder_window(root, info):
     frame = ttk.Frame(win, padding=20)
     frame.pack(fill="both", expand=True)
 
-    # Title
+    # Title & message based on day
     if info["is_monday"]:
-        title = f"📋 周一提醒 - 第 {info['week_num']} 周"
+        title = f"周一提醒 - 第 {info['week_num']} 周"
         msg = f"新的一周开始了！本周需关注以下 {info['total']} 位重点客户，请在周五前完成研究或联系。"
-    else:
-        title = f"⏰ 周五提醒 - 第 {info['week_num']} 周"
+    elif info["is_friday"]:
+        title = f"周五提醒 - 第 {info['week_num']} 周"
         remaining = info["total"] - info["contacted_count"]
         msg = f"本周即将结束！还有 {remaining} 位客户尚未联系："
+    else:
+        day_names = ["周一", "周二", "周三", "周四", "周五"]
+        day_name = day_names[info["weekday"]]
+        remaining = info["total"] - info["contacted_count"]
+        title = f"{day_name}提醒 - 第 {info['week_num']} 周"
+        if remaining == 0:
+            msg = f"所有客户本周已联系完毕，继续保持！"
+        else:
+            msg = f"本周还有 {remaining} 位客户尚未联系："
 
     ttk.Label(frame, text=title, font=("微软雅黑", 13, "bold")).pack(anchor="w", pady=(0, 8))
     ttk.Label(frame, text=msg, font=("微软雅黑", 10), wraplength=400).pack(anchor="w")
