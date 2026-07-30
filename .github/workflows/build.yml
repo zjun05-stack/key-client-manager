@@ -27,6 +27,7 @@ jobs:
           python -c "
           import openpyxl
           from openpyxl.styles import Font, Alignment, PatternFill, Border, Side
+          from openpyxl.worksheet.datavalidation import DataValidation
 
           wb = openpyxl.Workbook()
           ws1 = wb.active
@@ -54,8 +55,7 @@ jobs:
           for col_letter, title, width in [('A', '序号', 8), ('B', '客户名称', 35), ('C', '联系方式', 14), ('D', '联系日期', 14), ('E', '备注', 40)]:
               c = ws2[f'{col_letter}1']; c.value = title; c.font = hf; c.fill = hfill; c.alignment = ha; c.border = tb
               ws2.column_dimensions[col_letter].width = width
-          from openpyxl.worksheet.datavalidation import DataValidation
-          dv = DataValidation(type='list', formula1='\"电话,拜访,微信,邮件,其他\"', allow_blank=True)
+          dv = DataValidation(type='list', formula1='"电话,拜访,微信,邮件,其他"', allow_blank=True)
           ws2.add_data_validation(dv)
           dv.add('C2:C1000')
           for row in range(2, 1002):
