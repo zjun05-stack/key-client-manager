@@ -7,7 +7,7 @@ from datetime import date
 from excel_handler import (
     load_customers,
     get_this_week_contacted,
-    get_last_contact_date,
+    get_last_contact_date_map,
     add_contact_record,
     get_contact_records,
     get_week_info,
@@ -135,7 +135,7 @@ class MainWindow:
         self.progress_label = ttk.Label(top_frame, text="", font=("Microsoft YaHei", 11))
         self.progress_label.pack(side="right")
 
-        self.progress = ttk.Progressbar(top_frame, length=200, mode="determinate", maximum=20)
+        self.progress = ttk.Progressbar(top_frame, length=200, mode="determinate")
         self.progress.pack(side="right", padx=(0, 10))
         self.progress_label.pack(side="right", padx=(0, 5))
 
@@ -181,14 +181,21 @@ class MainWindow:
 
     def _refresh(self, *_):
         """Reload all data from Excel and update display."""
-        customers = load_customers()
+        try:
+            customers = load_customers()
+        except Exception as e:
+            messagebox.showerror("错误", f"读取客户名单失败：{e}")
+            return
         contacted = get_this_week_contacted()
+        last_dates = get_last_contact_date_map()
         week_num, monday, friday = get_week_info()
+
+        total = len(customers)
+        count = len(contacted)
 
         # Update top bar
         self.week_label.config(text=f"第 {week_num} 周（{monday.strftime('%m/%d')} - {friday.strftime('%m/%d')}）")
-        count = len(contacted)
-        total = len(customers)
+        self.progress["maximum"] = max(total, 1)
         self.progress["value"] = count
         self.progress_label.config(text=f"本周已完成: {count}/{total}")
 
@@ -199,7 +206,7 @@ class MainWindow:
         for c in customers:
             name = c["name"]
             is_contacted = name in contacted
-            last_date = get_last_contact_date(name)
+            last_date = last_dates.get(name)
             date_str = last_date.strftime("%m-%d") if last_date else "-"
             status = "✓ 已联系" if is_contacted else "✗ 未联系"
             tag = "contacted" if is_contacted else "uncontacted"
@@ -219,11 +226,15 @@ class MainWindow:
         self.root.wait_window(dialog)
 
         if dialog.result:
-            add_contact_record(name, dialog.result["method"], date.today(), dialog.result["notes"])
+            try:
+                add_contact_record(name, dialog.result["method"], date.today(), dialog.result["notes"])
+            except Exception as e:
+                messagebox.showerror("保存失败", f"保存联系记录时出错：{e}")
+                return
             self._refresh()
-            # If all 20 contacted on Friday, show congrats
             contacted = get_this_week_contacted()
-            if len(contacted) >= 20:
+            customers = load_customers()
+            if len(contacted) >= len(customers) and len(customers) > 0:
                 messagebox.showinfo("恭喜", "本周所有重点客户已全部联系完毕！")
 
     def _on_right_click(self, event):

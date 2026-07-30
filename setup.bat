@@ -1,4 +1,5 @@
 @echo off
+chcp 65001 >nul
 echo ===========================================
 echo   业务员重点客户管理 - 一键安装
 echo ===========================================
@@ -7,35 +8,16 @@ echo.
 set "APP_DIR=%~dp0"
 set "APP_DIR=%APP_DIR:~0,-1%"
 
-:: Find main EXE: pick the largest .exe that is NOT the uninstaller
-:: The uninstaller is smaller (~11MB) vs main app (~19MB)
-set "MAIN_EXE="
-set "MAIN_SIZE=0"
-for %%f in ("%APP_DIR%\*.exe") do (
-    set "FNAME=%%~nxf"
-    set "FSIZE=%%~zf"
-    setlocal enabledelayedexpansion
-    set "SKIP=0"
-    echo !FNAME! | findstr /i "uninstall" >nul && set "SKIP=1"
-    if "!SKIP!"=="0" (
-        if !FSIZE! gtr !MAIN_SIZE! (
-            endlocal
-            set "MAIN_EXE=%%~nxf"
-            set "MAIN_SIZE=%%~zf"
-        ) else (
-            endlocal
-        )
-    ) else (
-        endlocal
-    )
-)
+:: Use PowerShell to reliably find the main EXE (skip uninstaller)
+for /f "delims=" %%f in ('powershell -Command "Get-ChildItem '%APP_DIR%' -Filter *.exe | Where-Object { $_.Name -notmatch 'uninstall|卸载' } | Sort-Object Length -Descending | Select-Object -First 1 -ExpandProperty Name"') do set "MAIN_EXE=%%f"
+
 if "%MAIN_EXE%"=="" (
     echo [错误] 未找到程序文件。
     echo 请将本 bat 与 客户管理.exe 放在同一文件夹内。
     pause
     exit /b 1
 )
-echo [OK] 已找到 %MAIN_EXE%
+echo [OK] 已找到主程序: %MAIN_EXE%
 
 :: Create VBS launcher (silent start, no console window)
 set "VBS_FILE=%APP_DIR%\launcher.vbs"
@@ -50,9 +32,9 @@ copy "%VBS_FILE%" "%SHORTCUT%" /Y >nul 2>&1
 if %errorlevel% equ 0 (
     echo [OK] 开机自启已设置
 ) else (
-    echo [警告] 开机自启失败，请手动复制以下文件到启动文件夹：
+    echo [警告] 开机自启失败，请手动复制:
     echo   %VBS_FILE%
-    echo   → %STARTUP_DIR%
+    echo   到 %STARTUP_DIR%
 )
 
 :: Create desktop shortcut pointing to the main EXE
