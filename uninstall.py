@@ -17,15 +17,15 @@ def uninstall():
     frame = ttk.Frame(root, padding=20)
     frame.pack(fill="both", expand=True)
 
-    ttk.Label(frame, text="业务员重点客户管理", font=("微软雅黑", 13, "bold")).pack(pady=(0, 4))
-    ttk.Label(frame, text="卸载程序将执行以下操作：", font=("微软雅黑", 10)).pack(anchor="w", pady=(8, 4))
+    ttk.Label(frame, text="业务员重点客户管理", font=("Microsoft YaHei", 13, "bold")).pack(pady=(0, 4))
+    ttk.Label(frame, text="卸载程序将执行以下操作：", font=("Microsoft YaHei", 10)).pack(anchor="w", pady=(8, 4))
 
     info_frame = ttk.Frame(frame)
     info_frame.pack(anchor="w", padx=(12, 0))
 
-    ttk.Label(info_frame, text="1. 移除开机自启设置", font=("微软雅黑", 10)).pack(anchor="w")
-    ttk.Label(info_frame, text="2. 删除桌面快捷方式", font=("微软雅黑", 10)).pack(anchor="w")
-    ttk.Label(info_frame, text="3. 停止正在运行的程序（如有）", font=("微软雅黑", 10)).pack(anchor="w")
+    ttk.Label(info_frame, text="1. 移除开机自启设置", font=("Microsoft YaHei", 10)).pack(anchor="w")
+    ttk.Label(info_frame, text="2. 删除桌面快捷方式", font=("Microsoft YaHei", 10)).pack(anchor="w")
+    ttk.Label(info_frame, text="3. 停止正在运行的程序（如有）", font=("Microsoft YaHei", 10)).pack(anchor="w")
 
     delete_var = tk.BooleanVar(value=False)
     ttk.Checkbutton(info_frame, text="同时删除程序文件夹及所有数据（含联系记录）",
@@ -99,7 +99,7 @@ def uninstall():
     ttk.Button(btn_frame, text="取消", command=root.destroy, width=10).pack(side="left")
 
     # Result area
-    result_text = tk.Text(frame, height=6, font=("微软雅黑", 9), relief="flat", bg="#f5f5f5")
+    result_text = tk.Text(frame, height=6, font=("Microsoft YaHei", 9), relief="flat", bg="#f5f5f5")
     result_text.pack(fill="both", expand=True, pady=(8, 0))
 
     root.mainloop()

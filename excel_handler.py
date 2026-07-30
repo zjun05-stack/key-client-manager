@@ -14,7 +14,7 @@ else:
 
 EXCEL_FILE = os.path.join(APP_DIR, "重点客户名单.xlsx")
 
-BODY_FONT = Font(name="微软雅黑", size=11)
+BODY_FONT = Font(name="Microsoft YaHei", size=11)
 BODY_ALIGN = Alignment(horizontal="center", vertical="center")
 NAME_ALIGN = Alignment(horizontal="left", vertical="center")
 THIN_BORDER = Border(

@@ -74,14 +74,14 @@ def _show_reminder_window(root, info):
         else:
             msg = f"本周还有 {remaining} 位客户尚未联系："
 
-    ttk.Label(frame, text=title, font=("微软雅黑", 13, "bold")).pack(anchor="w", pady=(0, 8))
-    ttk.Label(frame, text=msg, font=("微软雅黑", 10), wraplength=400).pack(anchor="w")
+    ttk.Label(frame, text=title, font=("Microsoft YaHei", 13, "bold")).pack(anchor="w", pady=(0, 8))
+    ttk.Label(frame, text=msg, font=("Microsoft YaHei", 10), wraplength=400).pack(anchor="w")
 
     # List of clients needing attention
     if info["uncontacted"]:
         list_frame = ttk.Frame(frame)
         list_frame.pack(fill="both", expand=True, pady=(10, 10))
-        listbox = tk.Listbox(list_frame, font=("微软雅黑", 10), height=8)
+        listbox = tk.Listbox(list_frame, font=("Microsoft YaHei", 10), height=8)
         scrollbar = ttk.Scrollbar(list_frame, orient="vertical", command=listbox.yview)
         listbox.configure(yscrollcommand=scrollbar.set)
         for name in info["uncontacted"]:

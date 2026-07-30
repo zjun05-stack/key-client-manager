@@ -36,18 +36,18 @@ class MarkContactDialog(tk.Toplevel):
         frame.pack(fill="both", expand=True)
 
         # Customer name
-        ttk.Label(frame, text=f"客户：{self.customer_name}", font=("微软雅黑", 11, "bold")).pack(anchor="w", pady=(0, 12))
+        ttk.Label(frame, text=f"客户：{self.customer_name}", font=("Microsoft YaHei", 11, "bold")).pack(anchor="w", pady=(0, 12))
 
         # Contact method
-        ttk.Label(frame, text="联系方式：", font=("微软雅黑", 10)).pack(anchor="w")
+        ttk.Label(frame, text="联系方式：", font=("Microsoft YaHei", 10)).pack(anchor="w")
         self.method_var = tk.StringVar(value="电话")
         methods = ["电话", "拜访", "微信", "邮件", "其他"]
         combo = ttk.Combobox(frame, textvariable=self.method_var, values=methods, state="readonly", width=20)
         combo.pack(anchor="w", pady=(2, 10))
 
         # Notes
-        ttk.Label(frame, text="备注：", font=("微软雅黑", 10)).pack(anchor="w")
-        self.notes_text = tk.Text(frame, height=3, width=40, font=("微软雅黑", 10))
+        ttk.Label(frame, text="备注：", font=("Microsoft YaHei", 10)).pack(anchor="w")
+        self.notes_text = tk.Text(frame, height=3, width=40, font=("Microsoft YaHei", 10))
         self.notes_text.pack(anchor="w", pady=(2, 12))
 
         # Buttons
@@ -129,10 +129,10 @@ class MainWindow:
         top_frame.pack(fill="x")
 
         week_num, monday, friday = get_week_info()
-        self.week_label = ttk.Label(top_frame, text="", font=("微软雅黑", 11, "bold"))
+        self.week_label = ttk.Label(top_frame, text="", font=("Microsoft YaHei", 11, "bold"))
         self.week_label.pack(side="left")
 
-        self.progress_label = ttk.Label(top_frame, text="", font=("微软雅黑", 11))
+        self.progress_label = ttk.Label(top_frame, text="", font=("Microsoft YaHei", 11))
         self.progress_label.pack(side="right")
 
         self.progress = ttk.Progressbar(top_frame, length=200, mode="determinate", maximum=20)
